@@ -301,8 +301,8 @@ class DatabasePerformanceTester:
             print(f"❌ Error ejecutando {query_name}: {e}")
             return None
     
-    def measure_query_performance(self, query_dict, data_size, with_indexes=False):
-        """Medir rendimiento de todas las consultas según metodología (10 ejecuciones)"""
+    def measure_query_performance(self, query_dict, data_size, with_indexes=False, iterations=10):
+        """Medir rendimiento de todas las consultas según metodología"""
         conn = self.connect()
         cursor = conn.cursor()
         
@@ -312,12 +312,13 @@ class DatabasePerformanceTester:
         results = {}
         
         for query_id, query_info in query_dict.items():
-            print(f"\n📊 Midiendo {query_info['name']} ({'CON' if with_indexes else 'SIN'} índices)...")
+            print(f"\n📊 Midiendo {query_info['name']} ({'CON' if with_indexes else 'SIN'} índices)")
+            print(f"🔄 Ejecutando {iterations} iteraciones...")
             
             times = []
             
-            # 10 ejecuciones + 1 de warm-up (que se descarta)
-            for i in range(11):
+            # N ejecuciones + 1 de warm-up (que se descarta)
+            for i in range(iterations + 1):
                 # Limpiar caché entre ejecuciones según metodología
                 self.clean_cache_and_analyze(cursor)
                 
@@ -453,9 +454,10 @@ class DatabasePerformanceTester:
         else:
             return "1M"
     
-    def run_full_performance_test(self):
+    def run_full_performance_test(self, num_iterations=10):
         """Ejecutar test completo de rendimiento siguiendo la metodología"""
         print("🚀 INICIANDO TEST COMPLETO DE RENDIMIENTO")
+        print(f"🔄 Número de iteraciones configurado: {num_iterations}")
         print("=" * 60)
         
         # Verificar datos disponibles
@@ -481,7 +483,7 @@ class DatabasePerformanceTester:
         
         self.drop_indexes()  # Asegurar que no hay índices personalizados
         results_without_indexes = self.measure_query_performance(
-            queries, data_scale, with_indexes=False
+            queries, data_scale, with_indexes=False, iterations=num_iterations
         )
         
         # Fase 2: Crear índices y medir CON índices
@@ -491,7 +493,7 @@ class DatabasePerformanceTester:
         
         self.create_indexes()
         results_with_indexes = self.measure_query_performance(
-            queries, data_scale, with_indexes=True
+            queries, data_scale, with_indexes=True, iterations=num_iterations
         )
         
         # Almacenar resultados
@@ -647,8 +649,8 @@ def main():
     print("🔬 Implementa metodología experimental del documento académico")
     print("-" * 60)
     
-    # Crear instancia del tester
-    tester = DatabasePerformanceTester()
+    # Número de iteraciones por defecto
+    num_iterations = 10
     
     # Verificar argumentos de línea de comandos
     if len(sys.argv) > 1:
@@ -657,10 +659,11 @@ def main():
 Uso: python measure_performance.py [opciones]
 
 Opciones:
-  -h, --help     Mostrar esta ayuda
-  --check-data   Solo verificar volumen de datos
-  --create-indexes Solo crear índices
-  --drop-indexes Solo eliminar índices
+  -h, --help              Mostrar esta ayuda
+  --check-data            Solo verificar volumen de datos
+  --create-indexes        Solo crear índices
+  --drop-indexes          Solo eliminar índices
+  --iterations N          Número de iteraciones (por defecto: 10)
   
 Sin argumentos: Ejecutar test completo de rendimiento
 
@@ -673,22 +676,38 @@ Requisitos:
 Ejemplo de uso completo:
   python create_schema.sql  # Crear esquema
   python main.py 10000      # Generar 10K registros
-  python measure_performance.py  # Medir rendimiento
+  python measure_performance.py --iterations 5  # Medir con 5 iteraciones
             """)
             return
         elif sys.argv[1] == '--check-data':
+            tester = DatabasePerformanceTester()
             tester.check_data_volume()
             return
         elif sys.argv[1] == '--create-indexes':
+            tester = DatabasePerformanceTester()
             tester.create_indexes()
             return
         elif sys.argv[1] == '--drop-indexes':
+            tester = DatabasePerformanceTester()
             tester.drop_indexes()
             return
+        elif sys.argv[1] == '--iterations' and len(sys.argv) > 2:
+            try:
+                num_iterations = int(sys.argv[2])
+                if num_iterations < 1:
+                    print("❌ El número de iteraciones debe ser mayor a 0")
+                    return
+                print(f"🔄 Configurado para {num_iterations} iteraciones")
+            except ValueError:
+                print("❌ Número de iteraciones inválido")
+                return
+    
+    # Crear instancia del tester con el número de iteraciones
+    tester = DatabasePerformanceTester()
     
     # Ejecutar test completo
     try:
-        tester.run_full_performance_test()
+        tester.run_full_performance_test(num_iterations=num_iterations)
     except KeyboardInterrupt:
         print("\n\n⚠️  Test interrumpido por el usuario")
     except Exception as e:
