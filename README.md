@@ -42,9 +42,13 @@ python verify_system.py
 python test_multi_scale.py  # Solo 1K y 10K registros
 ```
 
-### Análisis Completo (2-3 horas)
+### Análisis Completo (2-3 horas) - OPTIMIZADO
 ```bash
-python multi_scale_test.py  # 1K, 10K, 100K, 1M registros
+python multi_scale_test.py  # Iteraciones variables por escala:
+                            # 1K: 10 iteraciones (máxima precisión)
+                            # 10K: 5 iteraciones (balance)
+                            # 100K: 3 iteraciones (eficiencia)
+                            # 1M: 1 iteración (factibilidad)
 ```
 
 ### Escala Específica
@@ -65,9 +69,10 @@ python measure_performance.py
 
 ## Archivos Generados
 
-- `performance_results_[ESCALA].json` - Datos detallados
-- `performance_tables_[ESCALA].tex` - Tablas para LaTeX
-- `multi_scale_summary_YYYYMMDD_HHMM.json` - Resumen comparativo
+- `performance_results_[ESCALA].json` - Datos detallados por escala
+- `performance_tables_[ESCALA].tex` - Tablas LaTeX individuales
+- `multi_scale_summary_YYYYMMDD_HHMM.json` - Resumen comparativo completo
+- `multi_scale_comparative.tex` - **Tablas LaTeX comparativas para tu informe**
 
 ## Para Computadora Potente
 
@@ -84,9 +89,10 @@ tail -f multi_scale_test.log
 
 ## ¿Por Qué Es Importante Correr Todo?
 
+- **Iteraciones optimizadas**: 1K(10), 10K(5), 100K(3), 1M(1) para balance tiempo/precisión
 - **Datos reales vs simulados**: Necesitas resultados experimentales auténticos
 - **Escalabilidad**: El comportamiento cambia dramáticamente con más datos
-- **Validación académica**: Los resultados deben ser reproducibles
+- **Tablas LaTeX listas**: Genera `multi_scale_comparative.tex` para copiar directo al informe
 - **Análisis completo**: 1M registros muestra el verdadero impacto de los índices
 
 Los índices pueden ser **hasta 10x más rápidos** en escalas grandes, pero solo lo sabrás ejecutando las pruebas completas.
