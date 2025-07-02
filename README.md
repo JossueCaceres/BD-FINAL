@@ -20,7 +20,7 @@ Sistema automatizado para medir el rendimiento de consultas SQL en PostgreSQL, c
 ## Instalación Rápida
 
 ```bash
-git clone https://github.com/TU_USUARIO/BD-FINAL.git
+git clone https://github.com/JossueCaceres/BD-FINAL.git
 cd BD-FINAL/DB-final-initialization
 pip install -r requirements.txt
 python verify_system.py
