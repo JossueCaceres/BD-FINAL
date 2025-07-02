@@ -1,0 +1,1012 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[normalem]{ulem}   % para \uline (subrayado que respeta saltos)
+\usepackage[T1]{fontenc}      % buen copy/paste de subrayados
+\usepackage{lmodern}          % tipo de letra moderna
+% --- Macros de estilo ---
+\newcommand{\relname}[1]{\textcolor{green!60!black}{#1}}
+\newcommand{\attr}[1]{\textcolor{blue!70!black}{#1}}
+\newcommand{\rel}[1]{\textbf{\textcolor{green!70!black}{#1}}}
+\newcommand{\pk}[1]{\uline{\textcolor{green!60!black}{#1}}}
+\newcommand{\fk}[2]{\uline{\relname{#1}.\attr{#2}}}
+
+
+\begin{document}
+
+% Portada
+\begin{center}
+    \includegraphics[width=0.9\textwidth]{UtecLogo.jpeg} \\
+    \vspace{1cm}
+    \normalsize \textbf{LunchTrack} \\
+    \vspace{1cm}
+    \textbf{Hito 1 Proyecto DB} \\
+    \vspace{0.5cm}
+    \textbf{Curso:} \\
+    \textbf{Base de Datos I} \\
+    \vspace{0.5cm}
+    \textbf{Profesor:} \\
+    \textbf{Brenner Ojeda, Wilder Nina} \\
+    \vspace{0.5cm}
+    \textbf{Estudiantes:}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|>{\raggedright\arraybackslash}m{6cm}|m{3cm}|}
+    \hline
+    \textbf{Integrantes} & \textbf{Códigos} \\ \hline
+    Jossue Guillermo Caceres Molina & 202410768 \\ \hline
+    Esteban Jose Sulca Infante & 202210342 \\ \hline
+    Diana Sofia Rosales Bazan & 202410535 \\ \hline   
+    \end{tabular}
+\end{table}
+
+\vfill
+\begin{center}
+    Lima -- Perú \\
+    Mayo, 2025
+\end{center}
+
+\newpage
+
+% Contenido
+\tableofcontents
+\newpage
+
+%---------------------------------------------------
+\section{Descripción de Requerimientos}
+
+\subsection{Breve descripción del sistema}
+El sistema está diseñado para gestionar integralmente los menús diarios ofrecidos por un restaurante orientado a trabajadores de diversas empresas. Permitirá la administración de usuarios (clientes, trabajadores, repartidores y administradores), pedidos, menús, zonas de entrega y valoraciones. El objetivo principal es mejorar la eficiencia en la toma de pedidos, logística de entrega y recolección de retroalimentación para la mejora continua del servicio.
+
+\subsection{Posibles dificultades}
+\begin{itemize}
+  \item Validación de formatos en datos personales como teléfonos o correos.
+  \item Control de integridad en relaciones jerárquicas (herencia entre entidades).
+  \item Evitar eliminación de menús o platos vinculados a pedidos pasados.
+  \item Control de fechas válidas (no permitir pedidos en fechas pasadas).
+  \item Normalización de zonas y consistencia en costos de envío.
+\end{itemize}
+
+\subsection{Origen de los datos}
+\begin{itemize}
+  \item Los usuarios serán registrados manualmente o por importación de hojas de cálculo.
+  \item Los administradores ingresarán menús, platos y zonas desde el panel del sistema.
+  \item Los clientes generarán pedidos, calificaciones y comentarios.
+  \item La relación entre trabajadores, repartidores y zonas será definida por el administrador.
+\end{itemize}
+
+\subsection{Qué datos existen y qué significan}
+\begin{itemize}
+  \item \textbf{Usuario:} base de la jerarquía, contiene nombre, apellido y número telefónico.
+  \item \textbf{Cliente:} usuario que realiza pedidos y pertenece a una empresa y una zona de entrega.
+  \item \textbf{Trabajador:} usuario con número de emergencia. Puede ser repartidor o administrador.
+  \item \textbf{Administrador:} trabajador con correo electrónico y permisos de gestión.
+  \item \textbf{Repartidor:} trabajador que cubre zonas y entrega pedidos.
+  \item \textbf{Zona de entrega:} área geográfica asociada a un costo.
+  \item \textbf{Menú:} conjunto de platos válidos para una fecha, incluye posible variación (ej. vegetariano).
+  \item \textbf{Plato:} comida individual con nombre, foto, tipo, categoría e información nutricional.
+  \item \textbf{Pedido:} solicitud de un cliente, con estado, fechas y horas de entrega, dirección.
+  \item \textbf{Calificación y comentario:} retroalimentación opcional posterior a la entrega del pedido.
+\end{itemize}
+
+\subsection{Reglas semánticas entre los datos}
+\begin{itemize}
+  \item Cada cliente debe estar vinculado a una zona de entrega.
+  \item Un pedido debe tener un cliente, zona, menú y repartidor.
+  \item Un menú es creado por un administrador y está compuesto por varios platos.
+  \item Las calificaciones deben estar asociadas a pedidos ya entregados.
+  \item No se puede eliminar un menú ni un plato si ha sido parte de un pedido.
+  \item Un repartidor puede cubrir varias zonas, pero una zona puede tener múltiples repartidores.
+\end{itemize}
+
+\subsection{Carga y modificación de datos}
+\begin{itemize}
+  \item Usuarios: creados inicialmente y editados solo si hay cambios (zona, teléfono).
+  \item Platos y menús: gestionados diariamente por el administrador.
+  \item Pedidos: generados por el cliente y actualizados durante su ciclo de vida.
+  \item Calificaciones: ingresadas por el cliente luego de recibir su pedido.
+  \item Zonas: configuradas por el administrador y editadas esporádicamente.
+\end{itemize}
+
+\subsection{Consultas típicas esperadas}
+\begin{itemize}
+  \item Menús activos para la fecha actual.
+  \item Historial de pedidos de un cliente.
+  \item Reporte de platos mejor valorados.
+  \item Zonas con más entregas en la semana.
+  \item Pedidos con estado pendiente agrupados por zona.
+  \item Repartidores con mayor número de entregas en el mes.
+\end{itemize}
+
+\subsection{Volumen de datos esperados}
+\begin{itemize}
+  \item Usuarios: 10,000 registros en total.
+  \item Platos: hasta 200 distintos con rotación mensual.
+  \item Menús: 30 por mes, 365 por año.
+  \item Pedidos: 300 diarios, hasta 100,000 al año.
+  \item Calificaciones: ~60,000 al año (estimado del 60\% de pedidos).
+\end{itemize}
+
+\subsubsection{Carga de datos esperada}
+\begin{itemize}
+  \item Diariamente:
+    \begin{itemize}
+      \item 300 nuevos pedidos.
+      \item 1 menú creado.
+      \item 150 nuevas calificaciones.
+    \end{itemize}
+  \item Semanalmente:
+    \begin{itemize}
+      \item Reasignación de zonas o repartidores.
+      \item Modificaciones menores a platos.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Velocidad de respuesta esperada}
+\begin{itemize}
+  \item Consultas simples (por menú, pedido): $<$ 1 segundo.
+  \item Consultas agregadas (ranking, reportes): $<$ 2 segundos.
+  \item Carga masiva (pedidos de una semana): $<$ 5 segundos (exportación CSV o JSON).
+\end{itemize}
+
+
+
+\section{Modelo Entidad-Relación}
+\subsection{Reglas semánticas}
+El modelo entidad-relación captura las siguientes reglas semánticas:
+\begin{itemize}
+    \item Una receta tiene uno o mas ingredientes, y los ingredientes pueden estar en una o mas recetas.
+    \item Una receta puede ser hecha por uno o mas chefs, y los chefs pueden hacer una o mas recetas.
+    \item Una receta puede tener de cero a mas valoraciones, pero una valoración solo puede pertenecer a una receta específica.
+    \item Un usuario puede tener cero a mas valoraciones, pero una valoración solo puede tener un único usuario.
+    \item Una receta puede pertenecer a una única categoría, pero una categoría puede tener  de una a mas recetas.
+    \item Un sabor puede estar asociado a una o varias categorías, y una categoría puede contener una y mas sabores. 
+    \item Una receta puede tener de una a mas sabores y un sabor puede estar presente de una a mas recetas.
+    \item Un usuario puede mirar una o mas recetas, y una receta puede ser vista por uno o mas usuarios.
+\end{itemize}
+
+\section{Modelo Entidad-Relación}
+
+\subsection{Especificaciones y consideraciones sobre el modelo}
+El modelo relacional derivado se centra en la eficiencia del almacenamiento y la integridad de los datos. Las relaciones entre entidades, como la asociación entre recetas y chefs o recetas e ingredientes, son gestionadas a través de tablas de unión para permitir asociaciones de muchos a muchos, optimizando el acceso y la modificación de los datos. Además, se considera importante mantener la normalización para evitar la redundancia de datos y asegurar la consistencia.
+
+\section{Modelo Relacional}
+\subsection{Definición de tablas}
+
+El modelo relacional está definido por las siguientes tablas
+(llaves primarias \pk{\,subrayadas\,}):
+
+\begin{itemize}\setlength\itemsep{0.3em}
+  \item \rel{Usuario}(\pk{id\_usuario.bigint}, nombre.varchar(20), apellido.varchar(25), numero\_telef.integer)
+  \item \rel{Cliente}(\fk{Usuario}{id\_usuario}, empresa.varchar(10))
+  \item \rel{Trabajador}(\fk{Usuario}{id\_usuario}, nro\_telef\_emergencia.integer)
+  \item \rel{Repartidor}(\fk{Usuario}{id\_usuario})
+  \item \rel{Administrador}(\fk{Usuario}{id\_usuario}, correo.varchar(25))
+  \item \rel{Menu}(\pk{id\_menu.bigint}, \fk{Usuario}{id\_usuario}, variacion.varchar(20), fecha.date)
+  \item \rel{Plato}(\pk{id\_plato.integer}, nombre.varchar(25), foto.varchar(100), tipo.varchar(20), categoria.varchar(20), codigo\_info\_nutricional.varchar(100))
+  \item \rel{Pertenece}(\fk{Menu}{id\_menu}, \fk{Plato}{id\_plato})
+  \item \rel{Pedido}(\pk{id\_pedido.bigint}, fecha.datetime, estado.varchar(20), hora\_salida.time, hora\_entrega.time, hora\_entrega\_estimada.time, direccion\_exacta.varchar(50), \fk{ZonaEntrega}{nombre})
+  \item \rel{Tiene}(\fk{Pedido}{id\_pedido}, \fk{Menu}{id\_menu})
+  \item \rel{Hace}(\fk{Pedido}{id\_pedido}, \fk{Usuario}{id\_usuario}, calificacion.integer, comentario.varchar(100))
+  \item \rel{ZonaEntrega}(\pk{nombre.varchar(50)}, costo.float)
+  \item \rel{Vive}(\fk{ZonaEntrega}{nombre}, \fk{Usuario}{id\_usuario})
+  \item \rel{Cubre}(\fk{ZonaEntrega}{nombre}, \fk{Usuario}{id\_usuario})
+\end{itemize}
+
+\subsection{Especificaciones de transformación}
+Las entidades del modelo entidad-relación se han transformado en tablas, asegurando la normalización y la integridad de los datos mediante el uso de llaves primarias y foráneas.
+
+\subsubsection{Entidades}
+Las principales entidades como Persona, Chef, Receta, Sabores, Categoría, Ingredientes, Valoración y Usuario son directamente transformadas en tablas con atributos adecuados que reflejan sus propiedades y relaciones.
+
+\subsubsection{Entidades débiles}
+No se identifican entidades débiles en este modelo, ya que todas las entidades tienen atributos suficientes que permiten su identificación única.
+
+\subsubsection{Entidades superclase/subclases}
+\section*{Superclases y Subclases}
+
+\textbf{Ingrediente} (Superclase)
+\begin{itemize}
+    \item \textbf{Carnes} (Subclase)
+    \item \textbf{Vegetales} (Subclase)
+    \item \textbf{Granos-Cereales} (Subclase)
+    \item \textbf{Lácteos} (Subclase)
+    \item \textbf{Frutas} (Subclase)
+\end{itemize}
+
+\textbf{Persona} (Superclase)
+\begin{itemize}
+    \item \textbf{Usuario} (Subclase)
+    \item \textbf{Chef} (Subclase)
+\end{itemize}
+
+\subsubsection{Relaciones binarias}
+Las relaciones binarias se manejan mediante tablas de unión como Receta\_Ingredientes y Receta\_Sabor, que vinculan las llaves primarias de las entidades involucradas.
+
+\subsubsection{Relaciones ternarias}
+No se identifican relaciones ternarias en este modelo.
+
+\subsection{Diccionario de datos}
+El diccionario de datos describe cada atributo de las tablas en el modelo relacional, asegurando que todos los usuarios del sistema comprendan el significado, el tipo de datos y las restricciones de cada atributo en las tablas.
+
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|l|}
+\hline
+\textbf{Nombre campo}      & \textbf{Tipo de dato} & \textbf{PK} & \textbf{FK} & \textbf{Descripción} \\
+\hline
+id\_persona                & bigint                & X           &             & Código identificador de la persona. \\
+nombre\_usuario            & varchar(20)           &             &             & Nombre de usuario. \\
+nombre                     & varchar(25)           &             &             & Nombre de la persona. \\
+apellido                   & varchar(25)           &             &             & Apellido de la persona. \\
+pais                       & varchar(20)           &             &             & País de residencia de la persona. \\
+sexo                       & char(1)               &             &             & Sexo de la persona. \\
+email                      & varchar(30)           &             &             & Correo electrónico de la persona. \\
+password                   & varchar(40)           &             &             & Contraseña de la persona. \\
+fechaNacimiento            & date                  &             &             & Fecha de nacimiento de la persona. \\
+\hline
+\end{tabular}
+\caption{Persona}
+\label{table:persona}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|l|}
+\hline
+\textbf{Nombre campo}      & \textbf{Tipo de dato} & \textbf{PK} & \textbf{FK} & \textbf{Descripción} \\
+\hline
+id\_persona                & bigint                & X           &             & Código identificador del usuario. \\
+estado                     & varchar(10)           &             &             & Activo, Ausente o Desactivo. \\
+\hline
+\end{tabular}
+\caption{Usuario}
+\label{table:usuario}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|l|}
+\hline
+\textbf{Nombre campo}      & \textbf{Tipo de dato} & \textbf{PK} & \textbf{FK} & \textbf{Descripción} \\
+\hline
+id\_persona                & bigint                & X           &             & Código identificador del chef. \\
+especialidad               & varchar(25)           &             &             & Especialidad del chef. \\
+nro\_premios               & integer               &             &             & Número de premios obtenidos por el chef. \\
+\hline
+\end{tabular}
+\caption{Chef}
+\label{table:chef}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|l|}
+\hline
+\textbf{Nombre campo}      & \textbf{Tipo de dato} & \textbf{PK} & \textbf{FK} & \textbf{Descripción} \\
+\hline
+id\_receta                 & bigint                & X           &             & Código identificador de la receta. \\
+nombre                     & varchar(50)           &             &             & Nombre de la receta. \\
+origen                     & varchar(20)           &             &             & Origen de la receta. \\
+calorias\_total            & integer               &             &             & Total de calorías de la receta. \\
+id\_categoria              & integer               &             & X           & Código identificador de la categoría. \\
+descripcion                & varchar(1000)         &             &             & Descripción de la receta. \\
+\hline
+\end{tabular}
+\caption{Receta}
+\label{table:receta}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|l|}
+\hline
+\textbf{Nombre campo}      & \textbf{Tipo de dato} & \textbf{PK} & \textbf{FK} & \textbf{Descripción} \\
+\hline
+id\_ingrediente            & integer               & X           &             & Código identificador del ingrediente. \\
+nombre                     & varchar(20)           &             &             & Nombre del ingrediente. \\
+calorias                   & integer               &             &             & Calorías del ingrediente. \\
+origen                     & varchar(20)           &             &             & Origen del ingrediente. \\
+cantidad                   & smallint              &             &             & Cantidad del ingrediente. \\
+\hline
+\end{tabular}
+\caption{Ingrediente}
+\label{table:ingrediente}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|l|}
+\hline
+\textbf{Nombre campo}      & \textbf{Tipo de dato} & \textbf{PK} & \textbf{FK} & \textbf{Descripción} \\
+\hline
+id\_valoracion             & bigint                & X           &             & Código identificador de la valoración. \\
+comentarios                & varchar(255)          &             &             & Comentarios de la valoración. \\
+calificacion               & integer               &             &             & Calificación de la valoración. \\
+facilidad                  & integer               &             &             & Facilidad de la receta según la valoración. \\
+id\_persona                & bigint                &             & X           & Código identificador del usuario. \\
+id\_receta                 & bigint                &             & X           & Código identificador de la receta. \\
+\hline
+\end{tabular}
+\caption{Valoración}
+\label{table:valoracion}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|l|}
+\hline
+\textbf{Nombre campo}      & \textbf{Tipo de dato} & \textbf{PK} & \textbf{FK} & \textbf{Descripción} \\
+\hline
+id\_sabor                  & integer               & X           &             & Código identificador del sabor. \\
+nombre                     & varchar(25)           &             &             & Nombre del sabor. \\
+intensidad                 & varchar(25)           &             &             & Intensidad del sabor. \\
+tipo\_sabor                & varchar(20)           &             &             & Dulce, Salado, Acido o Picante. \\
+\hline
+\end{tabular}
+\caption{Sabor}
+\label{table:sabor}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|l|}
+\hline
+\textbf{Nombre campo}      & \textbf{Tipo de dato} & \textbf{PK} & \textbf{FK} & \textbf{Descripción} \\
+\hline
+id\_categoria              & integer               & X           &             & Código identificador de la categoría. \\
+nombre                     & varchar(25)           &             &             & Nombre de la categoría. \\
+\hline
+\end{tabular}
+\caption{Categoría}
+\label{table:categoria}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|l|}
+\hline
+\textbf{Nombre campo}      & \textbf{Tipo de dato} & \textbf{PK} & \textbf{FK} & \textbf{Descripción} \\
+\hline
+id\_persona                & bigint                & X           &             & Código identificador del usuario. \\
+NrVistas                   & integer               &             &             & Número de vistas. \\
+id\_receta                 & bigint                & X           &             & Código identificador de la receta. \\
+\hline
+\end{tabular}
+\caption{Mira}
+\label{table:mira}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|l|}
+\hline
+\textbf{Nombre campo}      & \textbf{Tipo de dato} & \textbf{PK} & \textbf{FK} & \textbf{Descripción} \\
+\hline
+id\_receta                 & bigint                & X           &             & Código identificador de la receta. \\
+id\_ingrediente            & integer               & X           &             & Código identificador del ingrediente. \\
+\hline
+\end{tabular}
+\caption{Tiene}
+\label{table:tiene}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|l|}
+\hline
+\textbf{Nombre campo}      & \textbf{Tipo de dato} & \textbf{PK} & \textbf{FK} & \textbf{Descripción} \\
+\hline
+id\_receta                 & bigint                & X           &             & Código identificador de la receta. \\
+id\_sabor                  & integer               & X           &             & Código identificador del sabor. \\
+\hline
+\end{tabular}
+\caption{Toma}
+\label{table:toma}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|l|}
+\hline
+\textbf{Nombre campo}      & \textbf{Tipo de dato} & \textbf{PK} & \textbf{FK} & \textbf{Descripción} \\
+\hline
+id\_categoria              & integer               & X           &             & Código identificador de la categoría. \\
+id\_sabor                  & integer               & X           &             & Código identificador del sabor. \\
+\hline
+\end{tabular}
+\caption{Asociada}
+\label{table:asociada}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|l|}
+\hline
+\textbf{Nombre campo}      & \textbf{Tipo de dato} & \textbf{PK} & \textbf{FK} & \textbf{Descripción} \\
+\hline
+id\_chef                   & bigint                & X           &             & Código identificador del chef. \\
+id\_receta                 & bigint                & X           &             & Código identificador de la receta. \\
+\hline
+\end{tabular}
+\caption{Prepara}
+\label{table:prepara}
+\end{table}
+
+
+\clearpage
+\section{Implementación de la base de datos}
+\subsection{Creación de tablas en PostgreSQL}
+Las tablas del Modelo Relacional ya están en la Tercera Forma Normal (3FN). Cada tabla tiene valores atómicos y no hay dependencias transitivas, lo que significa que cada atributo no clave depende directamente de la clave primaria completa.
+
+
+
+\definecolor{mypink}{HTML}{EED2A9}
+\definecolor{mygreen}{HTML}{7AAB48}
+
+\lstset{
+  language=SQL,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+  commentstyle=\color{mygreen},
+  morecomment=[l][\color{magenta}]{\#},
+  numbers=left,                    % Añadir números de línea
+  numberstyle=\tiny\color{gray},   % Estilo de los números de línea
+  stepnumber=1,                    % Numerar cada línea
+  numbersep=5pt,                   % Espacio entre los números y el código
+  frame=single,                    % Añadir un marco al código
+  breaklines=true,                 % Dividir líneas largas
+  breakatwhitespace=false,         % Romper en espacios en blanco
+  tabsize=2,                       % Tamaño de la tabulación
+  backgroundcolor=\color{mypink}   % Color de fondo
+}
+
+
+
+
+\begin{lstlisting}
+
+------------------------ TABLAS ------------------------
+
+/*PERSONA*/
+CREATE TABLE Persona (
+    id_persona BIGINT PRIMARY KEY,
+    nombre_usuario VARCHAR(20),
+    nombre VARCHAR(25),
+    apellido VARCHAR(25),
+    pais VARCHAR(20),
+    sexo CHAR(1),
+    email VARCHAR(30),
+    password VARCHAR(40),
+    fechaNacimiento DATE
+);
+
+/*CATEGORIA*/
+CREATE TABLE Categoria (
+    id_categoria INTEGER PRIMARY KEY,
+    nombre VARCHAR(25)
+);
+
+/*USUARIO*/
+CREATE TABLE Usuario (
+    id_persona BIGINT PRIMARY KEY,
+    estado VARCHAR(10),
+    FOREIGN KEY (id_persona) REFERENCES Persona(id_persona)
+);
+
+/*CHEF*/
+CREATE TABLE Chef (
+    id_persona BIGINT PRIMARY KEY,
+    especialidad VARCHAR(25),
+    nro_premios INTEGER,
+    FOREIGN KEY (id_persona) REFERENCES Persona(id_persona)
+);
+
+/*RECETA*/
+CREATE TABLE Receta (
+    id_receta BIGINT PRIMARY KEY,
+    nombre VARCHAR(50),
+    origen VARCHAR(20),
+    calorias_total INTEGER,
+    id_categoria INTEGER,
+    descripcion VARCHAR(1000),
+    FOREIGN KEY (id_categoria) REFERENCES Categoria(id_categoria)
+);
+
+/*INGREDIENTE*/
+CREATE TABLE Ingrediente (
+    id_ingrediente INTEGER PRIMARY KEY,
+    nombre VARCHAR(20),
+    calorias INTEGER,
+    origen VARCHAR(20),
+    cantidad SMALLINT
+);
+
+/*VALORACION*/
+CREATE TABLE Valoracion (
+    id_valoracion BIGINT PRIMARY KEY,
+    comentarios VARCHAR(255),
+    calificacion INTEGER,
+    facilidad INTEGER,
+    id_persona BIGINT,
+    id_receta BIGINT,
+    FOREIGN KEY (id_persona) REFERENCES Persona(id_persona),
+    FOREIGN KEY (id_receta) REFERENCES Receta(id_receta)
+);
+
+/*SABOR*/
+CREATE TABLE Sabor (
+    id_sabor INTEGER PRIMARY KEY,
+    nombre VARCHAR(25),
+    intensidad VARCHAR(25),
+    tipo_sabor VARCHAR(20)
+);
+
+/*MIRA*/
+CREATE TABLE Mira (
+    id_persona BIGINT,
+    NrVistas INTEGER,
+    id_receta BIGINT,
+    PRIMARY KEY (id_persona, id_receta),
+    FOREIGN KEY (id_persona) REFERENCES Persona(id_persona),
+    FOREIGN KEY (id_receta) REFERENCES Receta(id_receta)
+);
+
+/*TIENE*/
+CREATE TABLE Tiene (
+    id_receta BIGINT,
+    id_ingrediente INTEGER,
+    PRIMARY KEY (id_receta, id_ingrediente),
+    FOREIGN KEY (id_receta) REFERENCES Receta(id_receta),
+    FOREIGN KEY (id_ingrediente) REFERENCES Ingrediente(id_ingrediente)
+);
+
+/*TOMA*/
+CREATE TABLE Toma (
+    id_receta BIGINT,
+    id_sabor INTEGER,
+    PRIMARY KEY (id_receta, id_sabor),
+    FOREIGN KEY (id_receta) REFERENCES Receta(id_receta),
+    FOREIGN KEY (id_sabor) REFERENCES Sabor(id_sabor)
+);
+
+/*ASOCIADA*/
+CREATE TABLE Asociada (
+    id_categoria INTEGER,
+    id_sabor INTEGER,
+    PRIMARY KEY (id_categoria, id_sabor),
+    FOREIGN KEY (id_categoria) REFERENCES Categoria(id_categoria),
+    FOREIGN KEY (id_sabor) REFERENCES Sabor(id_sabor)
+);
+
+/*PREPARA*/
+CREATE TABLE Prepara (
+    id_chef BIGINT,
+    id_receta BIGINT,
+    PRIMARY KEY (id_chef, id_receta),
+    FOREIGN KEY (id_chef) REFERENCES Chef(id_persona),
+    FOREIGN KEY (id_receta) REFERENCES Receta(id_receta)
+);
+
+\end{lstlisting}
+\subsection{Carga de datos}
+Dado que la web es un caso ficticio que intenta imitar las recetas ya creadas o existentes, todos los datos fueron generados de manera artificial. El proceso se detalla en el siguiente apartado.
+\subsection{Simulación de datos faltantes}
+Para la generación de los datos se emplearon scripts en Python utilizando las librerías pandas, faker y psycopg2. Esto permitió crear datos consistentes con diversas restricciones, como claves primarias, tamaños y rangos. Además, esta herramienta facilitó la creación de datos aleatorios pero coherentes con el formato y los campos de cada atributo. Este método se utilizó para generar conjuntos de datos de 1k, 10k, 100k y 1M registros.
+
+\section{Optimización y experimentación}
+\subsection{Consultas SQL para el experimento}
+\subsubsection{Descripción del tipo de consultas seleccionadas}
+\begin{itemize}
+    \item \textbf{Consulta 1}: ¿Cuáles son las recetas con calificaciones más altas y facilidad promedio mayor o igual a 3, quiénes son los chefs que las preparan (con edades entre 30 y 45 años), incluyendo el total de calorías y el origen de cada receta?\\
+\textbf{Justificación}: Esta consulta permite identificar las recetas más destacadas no solo por su calificación promedio, sino también por la facilidad con la que pueden ser preparadas, asegurando que la facilidad promedio sea mayor o igual a 3. Además, proporciona información sobre los chefs que preparan estas recetas, enfocándose en aquellos con edades entre 30 y 45 años. Incluir detalles sobre el contenido calórico y el origen de cada receta es útil para la planificación de menús y promociones. Esta información puede ser utilizada para reconocer a chefs destacados en este rango de edad y fomentar la creación de recetas que sean populares y fáciles de preparar.
+
+    \item \textbf{Consulta 2}: ¿Qué ingredientes son los más utilizados en las recetas que tienen el tipo de sabor "Picante" de chefs con más de 2 premios y cuál es el total de calorías de esos ingredientes?\\
+\textbf{Justificación}: Esta consulta proporciona información sobre los ingredientes más comunes en las recetas con sabor "Picante" que son preparadas por chefs que han ganado más de 2 premios. Además, calcula el aporte calórico total de esos ingredientes. Esta información es útil para planificar el inventario y entender las tendencias en la preparación de recetas picantes, lo que puede ayudar en la creación de menús específicos y campañas de marketing dirigidas a los amantes de la comida picante.
+\end{itemize}
+\subsubsection{Implementación de consultas en SQL}
+\textbf{Consulta 1}:
+\\
+\begin{lstlisting}
+
+WITH Valoraciones AS (
+    SELECT 
+        v.id_receta,
+        ROUND(AVG(v.calificacion), 2) AS calificacion_promedio,
+        ROUND(AVG(v.facilidad), 2) AS facilidad_promedio,
+        COUNT(v.id_valoracion) AS total_valoraciones
+    FROM 
+        Valoracion v
+    GROUP BY 
+        v.id_receta
+    HAVING 
+        ROUND(AVG(v.facilidad), 2) >= 3
+)
+SELECT 
+    r.nombre AS nombre_receta, 
+    r.origen, 
+    r.calorias_total, 
+    v.calificacion_promedio,
+    v.facilidad_promedio,
+    p.nombre_usuario AS nombre_chef, 
+    c.especialidad
+FROM 
+    Receta r
+JOIN 
+    Prepara pr ON r.id_receta = pr.id_receta
+JOIN 
+    Chef c ON pr.id_chef = c.id_persona
+JOIN 
+    Persona p ON c.id_persona = p.id_persona
+LEFT JOIN 
+    Valoraciones v ON r.id_receta = v.id_receta
+WHERE 
+    v.facilidad_promedio >= 3 AND
+    p.id_persona IN 
+    (SELECT id_persona 
+     FROM Persona 
+     WHERE DATE_PART('year', AGE(fechaNacimiento)) BETWEEN 30 AND 45)
+ORDER BY 
+    v.calificacion_promedio DESC NULLS LAST, 
+    v.total_valoraciones DESC
+LIMIT 10;
+
+\end{lstlisting}
+
+\textbf{Consulta 2}:
+\\
+\begin{lstlisting}
+
+SELECT 
+    i.nombre AS nombre_ingrediente, 
+    COUNT(t.id_ingrediente) AS veces_utilizado,
+    SUM(i.calorias) AS total_calorias
+FROM 
+    Ingrediente i
+JOIN 
+    Tiene t ON i.id_ingrediente = t.id_ingrediente
+JOIN 
+    Receta r ON t.id_receta = r.id_receta
+JOIN 
+    Toma tm ON r.id_receta = tm.id_receta
+JOIN 
+    Sabor s ON tm.id_sabor = s.id_sabor
+JOIN 
+    Prepara pr ON r.id_receta = pr.id_receta
+JOIN 
+    Chef c ON pr.id_chef = c.id_persona
+WHERE 
+    s.tipo_sabor = 'Picante' AND
+    c.nro_premios > 2
+GROUP BY 
+    i.nombre
+HAVING 
+    COUNT(t.id_ingrediente) >= 3
+ORDER BY 
+    veces_utilizado DESC, 
+    total_calorias DESC;
+
+\end{lstlisting}
+\subsection{Metodología del experimento}
+Creamos una base de datos que contiene a cuatro esquemas con 1k, 10k, 100k y 1M de datos. Desactivamos el uso de los índices que Postgres tiene por defecto.
+\begin{lstlisting}
+SET enable_mergejoin to OFF;
+SET enable_hashjoin to OFF;
+SET enable_bitmapscan to OFF;
+SET enable_sort to OFF;
+\end{lstlisting}
+Por cada cada vez que se ejecute una consulta, usamos el comando VACUUM FULL para liberar el caché, de manera que no se altere el tiempo de ejecución. Se utilizará EXPLAIN ANALYZE para observar los tiempos de ejecución de cada consulta, tanto con índices como sin índices.
+
+
+\subsection{Optimización de consultas}
+\subsubsection{Índices para Consulta 1}
+\begin{lstlisting}
+CREATE INDEX idx_valoracion_id_receta ON Valoracion(id_receta);
+CREATE INDEX idx_receta_id_receta ON Receta(id_receta);
+CREATE INDEX idx_prepara_id_chef ON Prepara(id_chef);
+CREATE INDEX idx_chef_id_persona ON Chef(id_persona);
+CREATE INDEX idx_persona_id_persona ON Persona(id_persona);
+CREATE INDEX idx_persona_fechaNacimiento ON Persona(fechaNacimiento);
+CREATE INDEX idx_prepara_id_receta ON Prepara(id_receta);
+\end{lstlisting}
+\subsubsection{Índices para Consulta 2}
+\begin{lstlisting}
+CREATE INDEX idx_ingrediente_id_ingrediente ON Ingrediente(id_ingrediente);
+CREATE INDEX idx_tiene_id_ingrediente ON Tiene(id_ingrediente);
+CREATE INDEX idx_tiene_id_receta ON Tiene(id_receta);
+CREATE INDEX idx_receta_id_receta ON Receta(id_receta);
+CREATE INDEX idx_toma_id_receta ON Toma(id_receta);
+CREATE INDEX idx_toma_id_sabor ON Toma(id_sabor);
+CREATE INDEX idx_sabor_tipo_sabor ON Sabor(tipo_sabor);
+CREATE INDEX idx_prepara_id_receta ON Prepara(id_receta);
+CREATE INDEX idx_prepara_id_chef ON Prepara(id_chef);
+CREATE INDEX idx_chef_id_persona ON Chef(id_persona);
+CREATE INDEX idx_chef_nro_premios ON Chef(nro_premios);
+\end{lstlisting}
+\subsubsection{Planes de índices para Consulta 1}
+\textbf{1K Datos sin índices}
+\begin{center}
+    \includegraphics[width=\textwidth]{Consulta 1/1kSinIndices-1.png}
+    \includegraphics[width=\textwidth]{Consulta 1/1kSinIndices-2.png}
+    \includegraphics[width=\textwidth]{Consulta 1/1kSinIndices-3.png}
+\end{center}
+
+\textbf{10K Datos sin índices}
+\begin{center}
+    \includegraphics[width=\textwidth]{Consulta 1/10kSinIndices-1.png}
+    \includegraphics[width=\textwidth]{Consulta 1/10kSinIndices-2.png}
+    \includegraphics[width=\textwidth]{Consulta 1/10kSinIndices-3.png}
+\end{center}
+
+\textbf{100K Datos sin índices}
+\begin{center}
+    \includegraphics[width=\textwidth]{Consulta 1/100kSinIndices-1.png}
+    \includegraphics[width=\textwidth]{Consulta 1/100kSinIndices-2.png}
+    \includegraphics[width=\textwidth]{Consulta 1/100kSinIndices-3.png}
+\end{center}
+
+\textbf{1M Datos sin índices}
+\begin{center}
+    \includegraphics[width=\textwidth]{Consulta 1/1MSinIndices-1.png}
+    \includegraphics[width=\textwidth]{Consulta 1/1MSinIndices-2.png}
+    \includegraphics[width=\textwidth]{Consulta 1/1MSinIndices-3.png}
+    https://tinyurl.com/consulta-1
+\end{center}
+
+\textbf{1K Datos con índices}
+\begin{center}
+    \includegraphics[width=\textwidth]{Consulta 1/1kConIndices-1.png}
+    \includegraphics[width=\textwidth]{Consulta 1/1kConIndices-2.png}
+    \includegraphics[width=\textwidth]{Consulta 1/1kConIndices-3.png}
+\end{center}
+
+\textbf{10K Datos con índices}
+\begin{center}
+    \includegraphics[width=\textwidth]{Consulta 1/10kConIndices-1.png}
+    \includegraphics[width=\textwidth]{Consulta 1/10kConIndices-2.png}
+    \includegraphics[width=\textwidth]{Consulta 1/10kConIndices-3.png}
+\end{center}
+
+\textbf{100K Datos con índices}
+\begin{center}
+    \includegraphics[width=\textwidth]{Consulta 1/100kConIndices-1.png}
+    \includegraphics[width=\textwidth]{Consulta 1/100kConIndices-2.png}
+    \includegraphics[width=\textwidth]{Consulta 1/100kConIndices-3.png}
+\end{center}
+\textbf{1M Datos con índices}
+\begin{center}
+    \includegraphics[width=\textwidth]{Consulta 1/1MConIndices-1.png}
+    \includegraphics[width=\textwidth]{Consulta 1/1MConIndices-2.png}
+    \includegraphics[width=\textwidth]{Consulta 1/1MConIndices-3.png}
+    https://tinyurl.com/consulta-1
+\end{center}
+
+\subsubsection{Planes de índices para Consulta 2}
+\textbf{1K Datos sin índices}
+\begin{center}
+    \includegraphics[width=\textwidth]{Consulta 2/1kSinIndices-1.png}
+    \includegraphics[width=\textwidth]{Consulta 2/1kSinIndices-2.png}
+    \includegraphics[width=\textwidth]{Consulta 2/1kSinIndices-3.png}
+\end{center}
+
+\textbf{10K Datos sin índices}
+\begin{center}
+    \includegraphics[width=\textwidth]{Consulta 2/10kSinIndices-1.png}
+    \includegraphics[width=\textwidth]{Consulta 2/10kSinIndices-2.png}
+    \includegraphics[width=\textwidth]{Consulta 2/10kSinIndices-3.png}
+\end{center}
+
+\textbf{100K Datos sin índices}
+\begin{center}
+    \includegraphics[width=\textwidth]{Consulta 2/100kSinIndices-1.png}
+    \includegraphics[width=\textwidth]{Consulta 2/100kSinIndices-2.png}
+    \includegraphics[width=\textwidth]{Consulta 2/100kSinIndices-3.png}
+\end{center}
+
+\textbf{1M Datos sin índices}
+\begin{center}
+    \includegraphics[width=\textwidth]{Consulta 2/1MSinIndices-1.png}
+    \includegraphics[width=\textwidth]{Consulta 2/1MSinIndices-2.png}
+    \includegraphics[width=\textwidth]{Consulta 2/1MSinIndices-3.png}
+    https://tinyurl.com/consulta2
+\end{center}
+
+\textbf{1K Datos con índices}
+\begin{center}
+    \includegraphics[width=\textwidth]{Consulta 2/1kConIndices-1.png}
+    \includegraphics[width=\textwidth]{Consulta 2/1kConIndices-2.png}
+    \includegraphics[width=\textwidth]{Consulta 2/1kConIndices-3.png}
+\end{center}
+\textbf{10K Datos con índices}
+\begin{center}
+    \includegraphics[width=\textwidth]{Consulta 2/10kConIndices-1.png}
+    \includegraphics[width=\textwidth]{Consulta 2/10kConIndices-2.png}
+    \includegraphics[width=\textwidth]{Consulta 2/10kConIndices-3.png}
+\end{center}
+\textbf{100K Datos con índices}
+\begin{center}
+    \includegraphics[width=\textwidth]{Consulta 2/100kConIndices-1.png}
+    \includegraphics[width=\textwidth]{Consulta 2/100kConIndices-2.png}
+    \includegraphics[width=\textwidth]{Consulta 2/100kConIndices-3.png}
+\end{center}
+
+\textbf{1M Datos con índices}
+\begin{center}
+    \includegraphics[width=\textwidth]{Consulta 2/1MConIndices-1.png}
+    \includegraphics[width=\textwidth]{Consulta 2/1MConIndices-2.png}
+    \includegraphics[width=\textwidth]{Consulta 2/1MConIndices-3.png}
+    https://tinyurl.com/consulta2
+\end{center}
+
+\clearpage
+\subsection{Plataforma de Pruebas}
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Nombre campo}       & \textbf{Descripción}                \\
+\hline
+Sistema Operativo           & Windows 11 64-bits                  \\
+RAM                         & 16GB                                \\
+CPU                         & AMD Ryzen 7 6800H                   \\
+Capacidad SSD               & 512 GB                              \\
+PostgreSQL                  & 16.2                                \\
+Python                      & 3.11.9                              \\
+Docker                      & 4.32.1                              \\
+\hline
+\end{tabular}
+\caption{Especificaciones de la plataforma de prueba}
+\label{table:especificaciones_plataforma_prueba}
+\end{table}
+
+\subsection{Medición de tiempos}
+
+\subsubsection{Sin índices}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Ejecuciones} & \textbf{1K} & \textbf{10K} & \textbf{100K} & \textbf{1M} \\
+\hline
+1 & 6.925 & 370.445 & 37443.014 & 3456598.871 \\
+2 & 6.863 & 370.342 & 37442.823 & 3345508.730 \\
+3 & 6.894 & 369.948 & 37443.541 & 3453843.438 \\
+4 & 6.947 & 371.043 & 37442.982 & 3353489.923 \\
+5 & 6.821 & 370.829 & 37442.893 & 3468903.497 \\
+\hline
+\textbf{Promedio} & 6.890 & 370.521 & 37443.051 & 3419668.892 \\
+\textbf{Desviación estándar} & 0.044 & 0.383 & 0.254 & 53822.032 \\
+\hline
+\end{tabular}
+\caption{Consulta 1 sin índices en ms}
+\label{table:consulta1_sin_indices}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Ejecuciones} & \textbf{1K} & \textbf{10K} & \textbf{100K} & \textbf{1M} \\
+\hline
+1 & 4.229 & 35.407 & 298.672 & 12613.809 \\
+2 & 4.183 & 35.390 & 299.238 & 12643.834 \\
+3 & 4.298 & 34.934 & 298.843 & 12634.543 \\
+4 & 4.108 & 36.032 & 297.942 & 12614.232 \\
+5 & 4.238 & 35.546 & 298.592 & 12625.851 \\
+\hline
+\textbf{Promedio} & 4.211 & 35.462 & 298.657 & 12626.454 \\
+\textbf{Desviación estándar} & 0.068 & 0.369 & 0.407 & 12.165 \\
+\hline
+\end{tabular}
+\caption{Consulta 2 sin índices en ms}
+\label{table:consulta2_sin_indices}
+\end{table}
+
+\clearpage
+\subsubsection{Con índices}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Ejecuciones} & \textbf{1K} & \textbf{10K} & \textbf{100K} & \textbf{1M} \\
+\hline
+1 & 5.900 & 24.246 & 446.237 & 20554.954 \\
+2 & 5.895 & 24.349 & 444.438 & 20555.542 \\
+3 & 5.798 & 24.127 & 445.143 & 20561.763 \\
+4 & 5.912 & 23.978 & 443.994 & 20553.914 \\
+5 & 5.874 & 23.969 & 446.193 & 20578.145 \\
+\hline
+\textbf{Promedio} & 5.876 & 24.134 & 445.201 & 20560.464 \\
+\textbf{Desviación estándar} & 0.040 & 0.144 & 0.920 & 8.953 \\
+\hline
+\end{tabular}
+\caption{Consulta 1 con índices en ms}
+\label{table:consulta1_con_indices}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Ejecuciones} & \textbf{1K} & \textbf{10K} & \textbf{100K} & \textbf{1M} \\
+\hline
+1 & 1.891 & 20.542 & 1083.148 & 9379.140 \\
+2 & 1.784 & 20.893 & 1084.293 & 9378.833 \\
+3 & 1.948 & 21.094 & 1082.983 & 9377.893 \\
+4 & 1.844 & 20.834 & 1083.349 & 9379.102 \\
+5 & 1.889 & 20.783 & 1083.494 & 9378.948 \\
+\hline
+\textbf{Promedio} & 1.871 & 20.829 & 1083.053 & 9378.383 \\
+\textbf{Desviación estándar} & 0.060 & 0.207 & 0.463 & 0.450 \\
+\hline
+\end{tabular}
+\caption{Consulta 2 con índices en ms}
+\label{table:consulta2_con_indices}
+\end{table}
+
+\subsection{Resultados}
+\subsubsection{Consulta 1}
+\begin{center}
+    \includegraphics[width=\textwidth]{R-Consulta-1.png}
+\end{center}
+\subsubsection{Consulta 2}
+\begin{center}
+    \includegraphics[width=\textwidth]{R-Consulta-2.png}
+\end{center}
+\subsection{Análisis y Discusión}
+\textbf{Análisis de los Resultados}
+
+El análisis de los tiempos de ejecución de las consultas SQL con y sin índices reveló diferencias significativas en el rendimiento, especialmente a medida que el volumen de datos aumentaba.
+
+\textbf{Consulta 1}
+
+\begin{itemize}
+    \item \textbf{Sin Índices}: Los tiempos de ejecución incrementaron exponencialmente con el tamaño de los datos. Para 1M registros, el tiempo de ejecución promedio fue de aproximadamente 3,419,668 ms (más de 57 minutos), indicando una escalabilidad deficiente sin el uso de índices.
+  
+    \item \textbf{Con Índices}: Hubo una mejora significativa en los tiempos de ejecución con el uso de índices. Para 1M registros, el tiempo de ejecución promedio se redujo a 20,560 ms (alrededor de 20.5 segundos), lo que demuestra la eficiencia de los índices en mejorar el rendimiento de las consultas.
+
+    \item \textbf{Comparación}: La mejora en el rendimiento es clara. Sin índices, la consulta es impracticable para grandes volúmenes de datos debido al tiempo excesivo requerido. Con índices, la consulta se ejecuta de manera mucho más eficiente, lo que es esencial para aplicaciones en tiempo real o con grandes conjuntos de datos.
+\end{itemize}
+
+\textbf{Consulta 2}
+
+\begin{itemize}
+    \item \textbf{Sin Índices}: Similar a la Consulta 1, los tiempos de ejecución sin índices aumentaron significativamente con el tamaño de los datos. Para 1M registros, el tiempo de ejecución promedio fue de aproximadamente 12,626 ms (alrededor de 12.6 segundos).
+
+    \item \textbf{Con Índices}: La implementación de índices mejoró los tiempos de ejecución, aunque no de manera tan dramática como en la Consulta 1. Para 1M registros, el tiempo de ejecución promedio fue de aproximadamente 9,378 ms (alrededor de 9.4 segundos).
+
+    \item \textbf{Comparación}: Aunque la mejora con índices no fue tan significativa como en la Consulta 1, sigue siendo considerable. Los índices redujeron los tiempos de ejecución, lo que hace la consulta más práctica para grandes volúmenes de datos.
+\end{itemize}
+
+\textbf{Gráficas}
+
+Las gráficas muestran claramente la diferencia en el rendimiento entre las consultas con y sin índices. En ambas consultas, los tiempos de ejecución con índices fueron consistentemente más bajos que sin índices, especialmente a medida que aumentaba el tamaño de los datos.
+
+\section{Conclusiones}
+
+Los resultados obtenidos de las consultas ejecutadas con y sin índices muestran claramente la importancia de los índices en la optimización del tiempo de ejecución en bases de datos. En la \textbf{Consulta 1}, se observó que, para un volumen pequeño de datos (1K y 10K ejecuciones), la diferencia en el tiempo de ejecución entre las condiciones con y sin índices fue insignificante. Sin embargo, a partir de las 100K ejecuciones, la diferencia comenzó a ser notable, y para 1M de ejecuciones, el tiempo de ejecución sin índices se incrementó exponencialmente, superando los 3,000,000 ms, mientras que con índices se mantuvo casi constante. Esto demuestra que los índices son esenciales para mantener la eficiencia en consultas con grandes volúmenes de datos.
+
+En contraste, la \textbf{Consulta 2} presentó un comportamiento ligeramente diferente. Aunque el patrón general fue similar, la diferencia en el tiempo de ejecución entre las condiciones con y sin índices no fue tan pronunciada como en la Consulta 1. Para volúmenes pequeños (1K y 10K ejecuciones), nuevamente, no hubo una diferencia significativa. A partir de 100K ejecuciones, las consultas sin índices comenzaron a tomar más tiempo, alcanzando aproximadamente 10,000 ms para 1M de ejecuciones, mientras que las consultas con índices mostraron un incremento menor. Este comportamiento sugiere que la naturaleza de las consultas y los patrones de acceso a los datos pueden influir en el grado de beneficio obtenido por el uso de índices.
+
+En conclusión, los índices son fundamentales para la escalabilidad y eficiencia de las bases de datos. Aunque su impacto puede no ser significativo en volúmenes pequeños de datos, se vuelven cruciales a medida que el volumen de datos aumenta, evitando incrementos exponenciales en los tiempos de ejecución y asegurando tiempos de respuesta aceptables para aplicaciones en tiempo real y análisis de grandes volúmenes de datos.
+
+
+\section{Anexo}
+\begin{center}
+    https://tinyurl.com/consulta2
+    \\
+    https://tinyurl.com/consulta-1
+\end{center}
+\end{document}
