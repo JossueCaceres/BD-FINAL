@@ -1,0 +1,177 @@
+{
+  "timestamp": "2025-07-02T02:58:47.538432",
+  "data_scale": "10K",
+  "total_records": 11229,
+  "without_indexes": {
+    "consulta_1": {
+      "name": "Platos populares con información del administrador y zona",
+      "times": [
+        81.625,
+        85.048,
+        81.861,
+        85.514,
+        82.317,
+        85.183,
+        82.058,
+        83.435,
+        82.188,
+        86.157
+      ],
+      "average": 83.5386,
+      "std_dev": 1.7555026630569366,
+      "min": 81.625,
+      "max": 86.157,
+      "data_size": "10K",
+      "with_indexes": false
+    },
+    "consulta_2": {
+      "name": "Rendimiento de entregas por zona con información de repartidores",
+      "times": [
+        158.2,
+        160.86,
+        162.118,
+        162.646,
+        157.613,
+        159.594,
+        156.958,
+        159.268,
+        160.294,
+        161.634
+      ],
+      "average": 159.9185,
+      "std_dev": 1.938183642829886,
+      "min": 156.958,
+      "max": 162.646,
+      "data_size": "10K",
+      "with_indexes": false
+    },
+    "consulta_3": {
+      "name": "Repartidores con mejor desempeño por zona",
+      "times": [
+        131.426,
+        135.012,
+        135.187,
+        131.098,
+        133.811,
+        133.965,
+        134.628,
+        132.154,
+        131.139,
+        131.904
+      ],
+      "average": 133.0324,
+      "std_dev": 1.6511032809744046,
+      "min": 131.098,
+      "max": 135.187,
+      "data_size": "10K",
+      "with_indexes": false
+    },
+    "consulta_4": {
+      "name": "Clientes más activos y patrones de consumo",
+      "times": [
+        19.074,
+        17.204,
+        16.651,
+        16.54,
+        16.851,
+        19.646,
+        17.853,
+        17.52,
+        18.148,
+        17.961
+      ],
+      "average": 17.7448,
+      "std_dev": 1.0215551108209706,
+      "min": 16.54,
+      "max": 19.646,
+      "data_size": "10K",
+      "with_indexes": false
+    }
+  },
+  "with_indexes": {
+    "consulta_1": {
+      "name": "Platos populares con información del administrador y zona",
+      "times": [
+        9.121,
+        9.203,
+        10.618,
+        10.365,
+        6.469,
+        10.3,
+        10.892,
+        10.177,
+        10.802,
+        10.466
+      ],
+      "average": 9.8413,
+      "std_dev": 1.3298477815984135,
+      "min": 6.469,
+      "max": 10.892,
+      "data_size": "10K",
+      "with_indexes": true
+    },
+    "consulta_2": {
+      "name": "Rendimiento de entregas por zona con información de repartidores",
+      "times": [
+        114.267,
+        111.807,
+        114.229,
+        112.262,
+        113.374,
+        113.593,
+        111.858,
+        113.415,
+        112.472,
+        113.132
+      ],
+      "average": 113.0409,
+      "std_dev": 0.9025283559718951,
+      "min": 111.807,
+      "max": 114.267,
+      "data_size": "10K",
+      "with_indexes": true
+    },
+    "consulta_3": {
+      "name": "Repartidores con mejor desempeño por zona",
+      "times": [
+        109.573,
+        107.542,
+        105.737,
+        106.338,
+        119.294,
+        110.817,
+        108.433,
+        109.949,
+        100.921,
+        107.079
+      ],
+      "average": 108.5683,
+      "std_dev": 4.687742338624566,
+      "min": 100.921,
+      "max": 119.294,
+      "data_size": "10K",
+      "with_indexes": true
+    },
+    "consulta_4": {
+      "name": "Clientes más activos y patrones de consumo",
+      "times": [
+        6.746,
+        7.185,
+        6.818,
+        6.648,
+        6.582,
+        6.383,
+        6.364,
+        6.597,
+        6.507,
+        6.429
+      ],
+      "average": 6.6259,
+      "std_dev": 0.24668218419658916,
+      "min": 6.364,
+      "max": 7.185,
+      "data_size": "10K",
+      "with_indexes": true
+    }
+  }
+}

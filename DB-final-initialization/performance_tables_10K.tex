@@ -1,0 +1,61 @@
+
+% Tablas generadas automáticamente - 2025-07-02 02:58
+% Escala de datos: 10K
+
+% Tabla: Tiempos sin índices
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Consulta} & \textbf{10K (ms)} \\
+\hline
+Consulta 1 & 83.5 \\
+Consulta 2 & 159.9 \\
+Consulta 3 & 133.0 \\
+Consulta 4 & 17.7 \\
+\hline
+\end{tabular}
+\caption{Tiempos de ejecución sin índices (promedio de 10 ejecuciones)}
+\label{table:sin_indices_10k}
+\end{table}
+
+% Tabla: Tiempos con índices
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Consulta} & \textbf{10K (ms)} \\
+\hline
+Consulta 1 & 9.8 \\
+Consulta 2 & 113.0 \\
+Consulta 3 & 108.6 \\
+Consulta 4 & 6.6 \\
+\hline
+\end{tabular}
+\caption{Tiempos de ejecución con índices (promedio de 10 ejecuciones)}
+\label{table:con_indices_10k}
+\end{table}
+
+% Mejoras de rendimiento
+\subsection{Resultados para 10K}
+
+\subsubsection{Consulta 1}
+Mejora de rendimiento: 88.2\% más rápida\\
+Tiempo sin índices: 83.5 ms\\
+Tiempo con índices: 9.8 ms\\
+
+\subsubsection{Consulta 2}
+Mejora de rendimiento: 29.3\% más rápida\\
+Tiempo sin índices: 159.9 ms\\
+Tiempo con índices: 113.0 ms\\
+
+\subsubsection{Consulta 3}
+Mejora de rendimiento: 18.4\% más rápida\\
+Tiempo sin índices: 133.0 ms\\
+Tiempo con índices: 108.6 ms\\
+
+\subsubsection{Consulta 4}
+Mejora de rendimiento: 62.7\% más rápida\\
+Tiempo sin índices: 17.7 ms\\
+Tiempo con índices: 6.6 ms\\
+
